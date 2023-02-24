@@ -6,5 +6,4 @@ public interface IStorageClient
 {
     Task<string> UploadRemoteFileAsync(string url, string directory, string fileName, bool publicRead);
     Task<string> UploadStreamAsync(Stream fileStream, string directory, string fileName, bool publicRead);
-    Task<string> UploadScreenshotAsync(Screenshot screenshot, string directory, string fileName, bool publicRead);
 }

@@ -83,10 +83,11 @@ public class InstagramBrowserAuthenticator : IScraperBrowserAuthenticator
             _browser.GetScreenshot();
 
             var screenshot = _browser.GetScreenshot();
+            var screenshotStream = new MemoryStream(screenshot.AsByteArray);
 
             var cdnFileName = $"{Guid.NewGuid().ToString().Replace("-", "")}.png";
             var cdnDirectory = "accounts/screenshots";
-            var screenshotUrl = await _storageClient.UploadScreenshotAsync(screenshot, cdnDirectory, cdnFileName, true);
+            var screenshotUrl = await _storageClient.UploadStreamAsync(screenshotStream, cdnDirectory, cdnFileName, true);
 
             await _accountRepository.UpdateStatusAsync(_currentAccount, ScraperAccountStatus.BeyondRepair, screenshotUrl);
 

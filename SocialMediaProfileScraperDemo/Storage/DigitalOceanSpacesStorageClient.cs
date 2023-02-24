@@ -50,9 +50,4 @@ public class DigitalOceanSpacesStorageClient : IStorageClient
         await transferUtility.UploadAsync(uploadRequest);
         return $"{_cdnUrl}/{directory}/{fileName}";
     }
-
-    public async Task<string> UploadScreenshotAsync(Screenshot screenshot, string directory, string fileName, bool publicRead)
-    {
-        return await UploadStreamAsync(new MemoryStream(screenshot.AsByteArray), directory, fileName, publicRead);
-    }
 }

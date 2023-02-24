@@ -34,7 +34,8 @@ public class QueueItemDataLoader
         var cdnFileName = $"{Guid.NewGuid().ToString().Replace("-", "")}.png";
 
         var screenshot = _browser.GetScreenshot();
-        var screenshotUrl = await _storageClient.UploadScreenshotAsync(screenshot, $"queue-items/screenshots", cdnFileName, true);
+        var screenshotStream = new MemoryStream(screenshot.AsByteArray);
+        var screenshotUrl = await _storageClient.UploadStreamAsync(screenshotStream, $"queue-items/screenshots", cdnFileName, true);
 
         var sourcePicture = browserReader.GetPictureForProfile();
         var cdnPicture = await _storageClient.UploadRemoteFileAsync(sourcePicture, $"queue-items/pictures", cdnFileName, true);

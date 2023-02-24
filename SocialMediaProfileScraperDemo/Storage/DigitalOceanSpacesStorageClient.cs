@@ -21,18 +21,7 @@ public class DigitalOceanSpacesStorageClient : IStorageClient
     public async Task<string> UploadRemoteFileAsync(string url, string directory, string fileName, bool publicRead)
     {
         var stream = await HttpUtilities.GetStreamFromUrlAsync(url);
-        var transferUtility = new TransferUtility(_s3Client);
-            
-        var uploadRequest = new TransferUtilityUploadRequest
-        {
-            BucketName = _bucketName,
-            Key = $"{directory}/{fileName}",
-            InputStream = stream,
-            CannedACL = publicRead ? S3CannedACL.PublicRead : S3CannedACL.Private
-        };
-            
-        await transferUtility.UploadAsync(uploadRequest);
-        return $"{_cdnUrl}/{directory}/{fileName}";
+        return await UploadStreamAsync(stream, directory, fileName, publicRead);
     }
 
     public async Task<string> UploadStreamAsync(Stream stream, string directory, string fileName, bool publicRead)

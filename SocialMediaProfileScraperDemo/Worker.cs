@@ -31,7 +31,7 @@ public class Worker
 
             try
             {
-                var result = await _dataLoader.LoadDataForItem(item);
+                var result = await _dataLoader.LoadDataForItemAsync(item);
 
                 if (result.Data != null)
                 {

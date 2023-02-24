@@ -17,7 +17,7 @@ public class QueueItemDataLoader
         _configuration = configuration;
     }
 
-    public async Task<QueueItemLoaderResult> LoadDataForItem(QueueItem item)
+    public async Task<QueueItemLoaderResult> LoadDataForItemAsync(QueueItem item)
     {
         if (_configuration.GetValue<bool>("BrowserSettings:Authentication"))
         {

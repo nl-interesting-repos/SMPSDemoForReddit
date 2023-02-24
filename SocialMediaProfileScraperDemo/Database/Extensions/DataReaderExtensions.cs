@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace CascadeQueueItemAnalyzer.Database.Extensions;
+namespace SocialMediaProfileScraperDemo.Database.Extensions;
 
 public static class DataReaderExtensions
 {

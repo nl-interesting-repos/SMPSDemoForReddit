@@ -1,4 +1,4 @@
-using CascadeQueueItemAnalyzer.Database.Extensions;
+using SocialMediaProfileScraperDemo.Database.Extensions;
 
 namespace SocialMediaProfileScraperDemo.Database;
 

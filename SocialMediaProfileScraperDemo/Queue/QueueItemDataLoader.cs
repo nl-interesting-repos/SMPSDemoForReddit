@@ -7,13 +7,13 @@ namespace SocialMediaProfileScraperDemo.Queue;
 public class QueueItemDataLoader
 {
     private readonly ScraperBrowser _browser;
-    private readonly IStorageClient _digitalOceanSpacesStorageClient;
+    private readonly IStorageClient _storageClient;
     private readonly IConfiguration _configuration;
 
-    public QueueItemDataLoader(ScraperBrowser browser, IStorageClient digitalOceanSpacesStorageClient, IConfiguration configuration)
+    public QueueItemDataLoader(ScraperBrowser browser, IStorageClient storageClient, IConfiguration configuration)
     {
         _browser = browser;
-        _digitalOceanSpacesStorageClient = digitalOceanSpacesStorageClient;
+        _storageClient = storageClient;
         _configuration = configuration;
     }
 
@@ -31,19 +31,13 @@ public class QueueItemDataLoader
         
         browserReader.WaitForProfileLoad();
         
-        var screenshot = _browser.GetScreenshot();
-        var fileName = $"{item.Id}.png";
-        
-        screenshot.SaveAsFile(fileName);
-
-        var cdnDirectory = "queue-items";
         var cdnFileName = $"{Guid.NewGuid().ToString().Replace("-", "")}.png";
-        var screenshotUrl = await _digitalOceanSpacesStorageClient.UploadLocalFileAsync(File.OpenRead(fileName), $"{cdnDirectory}/screenshots", cdnFileName, true);
-        
-        File.Delete(fileName);
+
+        var screenshot = _browser.GetScreenshot();
+        var screenshotUrl = await _storageClient.UploadScreenshotAsync(screenshot, $"queue-items/screenshots", cdnFileName, true);
 
         var sourcePicture = browserReader.GetPictureForProfile();
-        var cdnPicture = await _digitalOceanSpacesStorageClient.UploadFileAsync(sourcePicture, $"{cdnDirectory}/pictures", cdnFileName, true);
+        var cdnPicture = await _storageClient.UploadRemoteFileAsync(sourcePicture, $"queue-items/pictures", cdnFileName, true);
 
         return new QueueItemLoaderResult(200, new QueueItemData(
             item.Id, 

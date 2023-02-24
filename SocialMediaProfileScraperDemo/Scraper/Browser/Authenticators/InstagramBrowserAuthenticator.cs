@@ -11,20 +11,20 @@ public class InstagramBrowserAuthenticator : IScraperBrowserAuthenticator
     private readonly ScraperBrowser _browser;
     private readonly ScraperAccountRepository _accountRepository;
     private readonly DelaySettings _delaySettings;
-    private readonly IStorageClient _digitalOceanSpacesStorageClient;
+    private readonly IStorageClient _storageClient;
 
     public InstagramBrowserAuthenticator(
         ILogger<InstagramBrowserAuthenticator> logger,
         ScraperBrowser browser,
         ScraperAccountRepository accountRepository,
         DelaySettings delaySettings,
-        IStorageClient digitalOceanSpacesStorageClient)
+        IStorageClient storageClient)
     {
         _logger = logger;
         _browser = browser;
         _accountRepository = accountRepository;
         _delaySettings = delaySettings;
-        _digitalOceanSpacesStorageClient = digitalOceanSpacesStorageClient;
+        _storageClient = storageClient;
     }
 
     private ScraperAccount _currentAccount;
@@ -83,17 +83,13 @@ public class InstagramBrowserAuthenticator : IScraperBrowserAuthenticator
             _browser.GetScreenshot();
 
             var screenshot = _browser.GetScreenshot();
-            var fileName = $"{_currentAccount.Username}.png";
 
-            screenshot.SaveAsFile(fileName);
-
-            var cdnDirectory = "accounts/screenshots";
             var cdnFileName = $"{Guid.NewGuid().ToString().Replace("-", "")}.png";
-            var screenshotUrl = await _digitalOceanSpacesStorageClient.UploadLocalFileAsync(File.OpenRead(fileName), cdnDirectory, cdnFileName, true);
-
-            File.Delete(fileName);
+            var cdnDirectory = "accounts/screenshots";
+            var screenshotUrl = await _storageClient.UploadScreenshotAsync(screenshot, cdnDirectory, cdnFileName, true);
 
             await _accountRepository.UpdateStatusAsync(_currentAccount, ScraperAccountStatus.BeyondRepair, screenshotUrl);
+
             return false;
         }
 

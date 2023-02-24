@@ -1,5 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Transfer;
+using OpenQA.Selenium;
 using SocialMediaProfileScraperDemo.Utilities;
 
 namespace SocialMediaProfileScraperDemo.Storage;
@@ -17,7 +18,7 @@ public class DigitalOceanSpacesStorageClient : IStorageClient
         _cdnUrl = cdnUrl;
     }
 
-    public async Task<string> UploadFileAsync(string url, string directory, string fileName, bool publicRead)
+    public async Task<string> UploadRemoteFileAsync(string url, string directory, string fileName, bool publicRead)
     {
         var stream = await HttpUtilities.GetStreamFromUrlAsync(url);
         var transferUtility = new TransferUtility(_s3Client);
@@ -34,7 +35,7 @@ public class DigitalOceanSpacesStorageClient : IStorageClient
         return $"{_cdnUrl}/{directory}/{fileName}";
     }
 
-    public async Task<string> UploadLocalFileAsync(FileStream fileStream, string directory, string fileName, bool publicRead)
+    public async Task<string> UploadStreamAsync(Stream stream, string directory, string fileName, bool publicRead)
     {
         var transferUtility = new TransferUtility(_s3Client);
             
@@ -42,11 +43,16 @@ public class DigitalOceanSpacesStorageClient : IStorageClient
         {
             BucketName = _bucketName,
             Key = $"{directory}/{fileName}",
-            InputStream = fileStream,
+            InputStream = stream,
             CannedACL = publicRead ? S3CannedACL.PublicRead : S3CannedACL.Private
         };
             
         await transferUtility.UploadAsync(uploadRequest);
         return $"{_cdnUrl}/{directory}/{fileName}";
+    }
+
+    public async Task<string> UploadScreenshotAsync(Screenshot screenshot, string directory, string fileName, bool publicRead)
+    {
+        return await UploadStreamAsync(new MemoryStream(screenshot.AsByteArray), directory, fileName, publicRead);
     }
 }

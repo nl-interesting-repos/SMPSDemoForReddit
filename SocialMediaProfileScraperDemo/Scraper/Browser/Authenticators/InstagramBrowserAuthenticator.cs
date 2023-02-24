@@ -178,7 +178,7 @@ public class InstagramBrowserAuthenticator : IScraperBrowserAuthenticator
 
     private bool NeedsSessionRenewal()
     {
-        return _profilePageLoads >= 4;
+        return _profilePageLoads >= 50;
     }
 
     private void Logout()

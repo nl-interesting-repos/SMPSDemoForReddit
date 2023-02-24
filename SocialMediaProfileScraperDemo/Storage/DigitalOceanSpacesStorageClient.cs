@@ -39,4 +39,10 @@ public class DigitalOceanSpacesStorageClient : IStorageClient
         await transferUtility.UploadAsync(uploadRequest);
         return $"{_cdnUrl}/{directory}/{fileName}";
     }
+
+    public async Task<string> UploadByteArrayAsync(byte[] byteArray, string directory, string fileName, bool publicRead)
+    {
+        var stream = new MemoryStream(byteArray);
+        return await UploadStreamAsync(stream, directory, fileName, publicRead);
+    }
 }

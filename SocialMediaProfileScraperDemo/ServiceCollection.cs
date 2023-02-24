@@ -68,7 +68,7 @@ public static class ServiceCollection
             ServiceURL = config["Spaces:ServiceUrl"]
         }));
         
-        serviceCollection.AddSingleton(provider => new StorageClient(provider.GetRequiredService<AmazonS3Client>(), bucketName, cdnUrl));
+        serviceCollection.AddSingleton<IStorageClient>(provider => new DigitalOceanSpacesStorageClient(provider.GetRequiredService<AmazonS3Client>(), bucketName, cdnUrl));
     }
     
     private static void AddSeleniumServices(IServiceCollection serviceCollection, IConfiguration config)

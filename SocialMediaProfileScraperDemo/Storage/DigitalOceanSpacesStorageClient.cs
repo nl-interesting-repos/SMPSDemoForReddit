@@ -4,13 +4,13 @@ using SocialMediaProfileScraperDemo.Utilities;
 
 namespace SocialMediaProfileScraperDemo.Storage;
 
-public class StorageClient
+public class DigitalOceanSpacesStorageClient : IStorageClient
 {
     private readonly AmazonS3Client _s3Client;
     private readonly string _bucketName;
     private readonly string _cdnUrl;
 
-    public StorageClient(AmazonS3Client s3Client, string bucketName, string cdnUrl)
+    public DigitalOceanSpacesStorageClient(AmazonS3Client s3Client, string bucketName, string cdnUrl)
     {
         _s3Client = s3Client;
         _bucketName = bucketName;

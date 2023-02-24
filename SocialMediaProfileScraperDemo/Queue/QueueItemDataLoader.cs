@@ -7,13 +7,13 @@ namespace SocialMediaProfileScraperDemo.Queue;
 public class QueueItemDataLoader
 {
     private readonly ScraperBrowser _browser;
-    private readonly StorageClient _storageClient;
+    private readonly IStorageClient _digitalOceanSpacesStorageClient;
     private readonly IConfiguration _configuration;
 
-    public QueueItemDataLoader(ScraperBrowser browser, StorageClient storageClient, IConfiguration configuration)
+    public QueueItemDataLoader(ScraperBrowser browser, IStorageClient digitalOceanSpacesStorageClient, IConfiguration configuration)
     {
         _browser = browser;
-        _storageClient = storageClient;
+        _digitalOceanSpacesStorageClient = digitalOceanSpacesStorageClient;
         _configuration = configuration;
     }
 
@@ -38,12 +38,12 @@ public class QueueItemDataLoader
 
         var cdnDirectory = "queue-items";
         var cdnFileName = $"{Guid.NewGuid().ToString().Replace("-", "")}.png";
-        var screenshotUrl = await _storageClient.UploadLocalFileAsync(File.OpenRead(fileName), $"{cdnDirectory}/screenshots", cdnFileName, true);
+        var screenshotUrl = await _digitalOceanSpacesStorageClient.UploadLocalFileAsync(File.OpenRead(fileName), $"{cdnDirectory}/screenshots", cdnFileName, true);
         
         File.Delete(fileName);
 
         var sourcePicture = browserReader.GetPictureForProfile();
-        var cdnPicture = await _storageClient.UploadFileAsync(sourcePicture, $"{cdnDirectory}/pictures", cdnFileName, true);
+        var cdnPicture = await _digitalOceanSpacesStorageClient.UploadFileAsync(sourcePicture, $"{cdnDirectory}/pictures", cdnFileName, true);
 
         return new QueueItemLoaderResult(200, new QueueItemData(
             item.Id, 

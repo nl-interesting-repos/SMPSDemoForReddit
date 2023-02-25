@@ -1,28 +1,34 @@
-﻿using SocialMediaProfileScraperDemo.Database;
+﻿using Dapper;
+using SocialMediaProfileScraperDemo.Database;
 
 namespace SocialMediaProfileScraperDemo.Queue;
 
-public class QueueItemDao : BaseDao
+public class QueueItemDao
 {
-    public QueueItemDao(IDatabaseProvider databaseProvider) : base(databaseProvider)
+    private readonly IDatabaseProvider _databaseProvider;
+
+    public QueueItemDao(IDatabaseProvider databaseProvider)
     {
+        _databaseProvider = databaseProvider;
     }
 
     public async Task UpdateStatusAsync(QueueItem item, QueueItemStatus statusId, string reason)
     {
-        await QueryAsync("UPDATE scraper_queue_items SET status_id = @statusId WHERE id = @id;", new Dictionary<string, object>
+        await using var connection = _databaseProvider.GetConnection();
+
+        await connection.ExecuteAsync("UPDATE scraper_queue_items SET status_id = @statusId WHERE id = @id;", new Dictionary<string, object>
         {
             { "statusId", statusId },
             { "id", item.Id }
         });
         
-        await QueryAsync("INSERT INTO scraper_queue_item_status_changes (queue_item_id, user_id, from_status_id, to_status_id, reason, changed_at) VALUES (@queueItemId, @userId, @fromId, @toId, @reason, NOW());", new Dictionary<string, object>
+        await connection.ExecuteAsync("INSERT INTO scraper_queue_item_status_changes (queue_item_id, user_id, from_status_id, to_status_id, reason, changed_at) VALUES (@queueItemId, @userId, @fromId, @toId, @reason, NOW());", new
         {
-            { "queueItemId", item.Id },
-            { "userId", 1 },
-            { "fromId", item.Status },
-            { "toId", statusId },
-            { "reason", reason }
+            item.Id,
+            I = 1,
+            item.Status,
+            statusId,
+            reason
         });
 
         item.Status = statusId;

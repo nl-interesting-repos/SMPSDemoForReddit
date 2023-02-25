@@ -17,6 +17,5 @@ public class ScraperAccountRepository
     public async Task UpdateStatusAsync(ScraperAccount account, ScraperAccountStatus newStatus, string reason)
     {
         await _accountDao.UpdateStatusForAccountAsync(account, newStatus, reason);
-        await _accountDao.LogStatusChangeAsync(account, newStatus, reason);
     }
 }

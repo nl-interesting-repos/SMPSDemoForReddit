@@ -1,36 +1,27 @@
-﻿using Dapper;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using SocialMediaProfileScraperDemo.Database;
 
 namespace SocialMediaProfileScraperDemo.Queue;
 
-public class QueueItemDataDao
+public class QueueItemDataDao : BaseDao
 {
-    private readonly IDatabaseProvider _databaseProvider;
-
-    public QueueItemDataDao(IDatabaseProvider databaseProvider)
+    public QueueItemDataDao(IDatabaseProvider databaseProvider) : base(databaseProvider)
     {
-        _databaseProvider = databaseProvider;
     }
 
     public async Task StoreAsync(QueueItemData queueItemData)
     {
-        var otherData = JsonConvert.SerializeObject(queueItemData.OtherData);
-
-        await using var connection = _databaseProvider.GetConnection();
-        const string query = "INSERT INTO `scraper_queue_item_data` (queue_item_id, screenshot_url, display_name, username, picture, biography, is_private, other_data, loaded_at) VALUES (@itemId, @screenshot, @name, @username, @picture, @bio, @isPrivate, @otherData, @loadedAt);";
-
-        await connection.ExecuteAsync(query, new
+        await QueryAsync("INSERT INTO `scraper_queue_item_data` (queue_item_id, screenshot_url, display_name, username, picture, biography, is_private, other_data, loaded_at) VALUES (@itemId, @screenshot, @name, @username, @picture, @bio, @isPrivate, @otherData, @loadedAt);", new Dictionary<string, object>()
         {
-            queueItemData.ItemId,
-            queueItemData.ScreenshotUrl,
-            queueItemData.DisplayName,
-            queueItemData.Username,
-            queueItemData.Picture,
-            queueItemData.Biography,
-            queueItemData.IsPrivate,
-            otherData,
-            queueItemData.LoadedAt,
+            { "itemId", queueItemData.ItemId },
+            { "screenshot", queueItemData.ScreenshotUrl },
+            { "name", queueItemData.DisplayName },
+            { "username", queueItemData.Username },
+            { "picture", queueItemData.Picture },
+            { "bio", queueItemData.Biography },
+            { "isPrivate", queueItemData.IsPrivate },
+            { "otherData", JsonConvert.SerializeObject(queueItemData.OtherData) },
+            { "loadedAt", queueItemData.LoadedAt },
         });
     }
 }

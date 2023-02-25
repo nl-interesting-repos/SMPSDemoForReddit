@@ -1,4 +1,4 @@
-namespace SocialMediaProfileScraperDemo.Database;
+namespace SocialMediaProfileScraperDemo.Database.Extensions;
 
 public interface IDatabaseProvider
 {

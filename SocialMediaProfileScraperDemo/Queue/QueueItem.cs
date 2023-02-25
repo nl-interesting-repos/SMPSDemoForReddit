@@ -1,17 +1,6 @@
 ﻿namespace SocialMediaProfileScraperDemo.Queue;
 
-public class QueueItem
+public record QueueItem(long Id, string Url, QueueItemStatus Status, ulong DeliveryTag)
 {
-    public long Id { get; }
-    public string Url { get; }
-    public QueueItemStatus Status { get; set; }
-    public ulong DeliveryTag { get; }
-
-    public QueueItem(long id, string url, QueueItemStatus status, ulong deliveryTag)
-    {
-        Id = id;
-        Url = url;
-        Status = status;
-        DeliveryTag = deliveryTag;
-    }
+    public QueueItemStatus Status { get; set; } = Status;
 }

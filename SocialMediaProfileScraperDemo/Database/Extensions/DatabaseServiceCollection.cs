@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MySqlConnector;
 
-namespace SocialMediaProfileScraperDemo.Database;
+namespace SocialMediaProfileScraperDemo.Database.Extensions;
 
 public class DatabaseServiceCollection
 {

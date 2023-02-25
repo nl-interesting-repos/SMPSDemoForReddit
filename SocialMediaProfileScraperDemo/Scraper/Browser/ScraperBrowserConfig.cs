@@ -5,7 +5,7 @@ using OpenQA.Selenium.Firefox;
 
 namespace SocialMediaProfileScraperDemo.Scraper.Browser;
 
-public class ScraperBrowserConfig
+public abstract class ScraperBrowserConfig
 {
     public static ChromeOptions GetChromeOptions(IConfiguration config)
     {
@@ -15,7 +15,7 @@ public class ScraperBrowserConfig
         {
             "--disable-webgl",
             "--disable-notifications",
-            "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+            $"--user-agent={config.GetValue<string>("BrowserSettings:UserAgent")}",
             "--log-level=OFF"
         };
         
@@ -41,10 +41,11 @@ public class ScraperBrowserConfig
     }
     public static FirefoxOptions GetFirefoxOptions(IConfiguration config)
     {
-        var firefoxOptions = new FirefoxOptions();
+        var firefoxOptions = new FirefoxOptions
+        {
+            LogLevel = FirefoxDriverLogLevel.Error
+        };
 
-        firefoxOptions.LogLevel = FirefoxDriverLogLevel.Error;
-        
         if (config.GetValue<bool>("BrowserSettings:LoadImages") == false)
         {
             firefoxOptions.SetPreference("permissions.default.image", 2);

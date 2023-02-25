@@ -5,38 +5,32 @@ using OpenQA.Selenium.Support.UI;
 
 namespace SocialMediaProfileScraperDemo.Scraper.Browser;
 
-public class ScraperBrowser
+public class ScraperBrowser : IScraperBrowser
 {
     private readonly ILogger<ScraperBrowser> _logger;
     private readonly IWebDriver _webDriver;
-    private readonly Dictionary<string, IScraperBrowserReader> _readers;
     private readonly Dictionary<string, IScraperBrowserAuthenticator> _authenticators;
 
     public ScraperBrowser(
         ILogger<ScraperBrowser> logger, 
-        IWebDriver webDriver)
+        IWebDriver webDriver, 
+        Dictionary<string, IScraperBrowserAuthenticator> authenticators)
     {
         _logger = logger;
         _webDriver = webDriver;
-        _readers = new Dictionary<string, IScraperBrowserReader>();
-        _authenticators = new Dictionary<string, IScraperBrowserAuthenticator>();
+        _authenticators = authenticators;
     }
 
-    public void RegisterServicesForHost(string host, IScraperBrowserReader reader,
-        IScraperBrowserAuthenticator authenticator)
-    {
-        _readers[host] = reader;
-        _authenticators[host] = authenticator;
-    }
-    
-    public void NavigateToUrl(string url, bool incrementPageLoadCountForSession = false)
+    public void NavigateToUrl(
+        string url,
+        bool incrementPageLoadCount = false)
     {
         _logger.LogTrace($"Navigating to '{url}'");
         
         _webDriver.Navigate().GoToUrl(url);
         WaitForPage();
 
-        if (incrementPageLoadCountForSession && _authenticators.TryGetValue(Host, out var authenticator))
+        if (incrementPageLoadCount && _authenticators.TryGetValue(Host, out var authenticator))
         {
             authenticator.IncrementProfilePageLoadCountForSession();
         }
@@ -81,18 +75,6 @@ public class ScraperBrowser
             Thread.Sleep(200);
         }
     }
-    
-    public IScraperBrowserReader GetReaderForHost()
-    {
-        var host = Host;
-
-        if (!_readers.ContainsKey(host))
-        {
-            throw new Exception($"Failed to resolve browser reader for host '{host}', check and try again.");
-        }
-        
-        return _readers[host];
-    }
 
     public string ExecuteScript(string script)
     {
@@ -122,5 +104,4 @@ public class ScraperBrowser
             Thread.Sleep(200);
         }
     }
-
 }

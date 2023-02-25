@@ -1,27 +1,14 @@
 ﻿namespace SocialMediaProfileScraperDemo.Queue;
 
-public class QueueItemData
+public record QueueItemData(long ItemId, string ScreenshotUrl, string DisplayName, string Username, string Picture, string Biography, bool IsPrivate, Dictionary<string, object> OtherData, DateTime LoadedAt)
 {
-    public QueueItemData(long itemId, string screenshotUrl, string displayName, string username, string picture, string biography, bool isPrivate, Dictionary<string, object> otherData, DateTime loadedAt)
-    {
-        ItemId = itemId;
-        ScreenshotUrl = screenshotUrl;
-        DisplayName = displayName;
-        Username = username;
-        Picture = picture;
-        Biography = biography;
-        IsPrivate = isPrivate;
-        OtherData = otherData;
-        LoadedAt = loadedAt;
-    }
-
-    public long ItemId { get; set; }
-    public string ScreenshotUrl { get; set; }
-    public string DisplayName { get; set; }
-    public string Username { get; set; }
-    public string Picture { get; set; }
-    public string Biography { get; set; }
-    public bool IsPrivate { get; set; }
-    public Dictionary<string, object> OtherData { get; set; }
-    public DateTime LoadedAt { get; set; }
+    public long ItemId { get; } = ItemId;
+    public string ScreenshotUrl { get; } = ScreenshotUrl;
+    public string DisplayName { get; } = DisplayName;
+    public string Username { get; } = Username;
+    public string Picture { get; } = Picture;
+    public string Biography { get; } = Biography;
+    public bool IsPrivate { get; } = IsPrivate;
+    public Dictionary<string, object> OtherData { get; } = OtherData;
+    public DateTime LoadedAt { get; } = LoadedAt;
 }

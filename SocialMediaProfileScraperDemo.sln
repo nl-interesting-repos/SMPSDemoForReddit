@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialMediaProfileScraperDemo", "SocialMediaProfileScraperDemo\SocialMediaProfileScraperDemo.csproj", "{472CED4B-6683-4619-B863-F95F02E36BE6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialMediaProfileScraperDemo.Tests", "SocialMediaProfileScraperDemo.Tests\SocialMediaProfileScraperDemo.Tests.csproj", "{D86C054C-A923-41D7-A4AE-6FE3AC622DCD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{472CED4B-6683-4619-B863-F95F02E36BE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{472CED4B-6683-4619-B863-F95F02E36BE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{472CED4B-6683-4619-B863-F95F02E36BE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D86C054C-A923-41D7-A4AE-6FE3AC622DCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D86C054C-A923-41D7-A4AE-6FE3AC622DCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D86C054C-A923-41D7-A4AE-6FE3AC622DCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D86C054C-A923-41D7-A4AE-6FE3AC622DCD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using SocialMediaProfileScraperDemo.Scraper.Browser;
-using SocialMediaProfileScraperDemo.Scraper.Browser.Authenticators;
-using SocialMediaProfileScraperDemo.Scraper.Browser.Readers;
 
 namespace SocialMediaProfileScraperDemo;
 
@@ -14,29 +11,13 @@ internal static class Program
         var host = Startup.CreateHost();
         var services = host.Services;
 
+        var config = services.GetRequiredService<IConfiguration>();
+
         Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(services.GetRequiredService<IConfiguration>())
+            .ReadFrom.Configuration(config)
             .CreateLogger();
 
-        var browser = services.GetRequiredService<ScraperBrowser>();
-
-        browser.RegisterServicesForHost(
-            "facebook.com",
-            services.GetRequiredService<FacebookBrowserReader>(),
-            services.GetRequiredService<FacebookBrowserAuthenticator>());
-
-        browser.RegisterServicesForHost(
-            "instagram.com",
-            services.GetRequiredService<InstagramBrowserReader>(),
-            services.GetRequiredService<InstagramBrowserAuthenticator>());
-
-        browser.RegisterServicesForHost(
-            "tiktok.com",
-            services.GetRequiredService<TikTokBrowserReader>(),
-            services.GetRequiredService<TikTokBrowserAuthenticator>());
-
         var worker = services.GetRequiredService<Worker>();
-        
         await worker.StartAsync();
     }
 }

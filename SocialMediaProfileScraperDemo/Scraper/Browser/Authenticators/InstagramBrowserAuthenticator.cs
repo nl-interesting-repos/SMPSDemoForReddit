@@ -27,7 +27,7 @@ public class InstagramBrowserAuthenticator : IScraperBrowserAuthenticator
         _storageClient = storageClient;
     }
 
-    private ScraperAccount _currentAccount;
+    private ScraperAccount? _currentAccount;
     private bool _authenticated;
 
     public async Task AuthIfNeededAsync()
@@ -83,11 +83,10 @@ public class InstagramBrowserAuthenticator : IScraperBrowserAuthenticator
             _browser.GetScreenshot();
 
             var screenshot = _browser.GetScreenshot();
-            var screenshotStream = new MemoryStream(screenshot.AsByteArray);
 
             var cdnFileName = $"{Guid.NewGuid().ToString().Replace("-", "")}.png";
             var cdnDirectory = "accounts/screenshots";
-            var screenshotUrl = await _storageClient.UploadStreamAsync(screenshotStream, cdnDirectory, cdnFileName, true);
+            var screenshotUrl = await _storageClient.UploadByteArrayAsync(screenshot.AsByteArray, cdnDirectory, cdnFileName, true);
 
             await _accountRepository.UpdateStatusAsync(_currentAccount, ScraperAccountStatus.BeyondRepair, screenshotUrl);
 
@@ -100,7 +99,7 @@ public class InstagramBrowserAuthenticator : IScraperBrowserAuthenticator
         {
             throw new Exception("The root HTML tag couldn't be found in the dom");
         }
-        
+
         return !rootHtmlTag.GetAttribute("className").Contains("not-logged-in");
     }
 
@@ -159,13 +158,14 @@ public class InstagramBrowserAuthenticator : IScraperBrowserAuthenticator
 
         var authError = GetAuthenticationError();
 
-        if (!string.IsNullOrEmpty(authError))
+        if (string.IsNullOrEmpty(authError) || _currentAccount == null)
         {
-            await _accountRepository.UpdateStatusAsync(_currentAccount, ScraperAccountStatus.NeedsReviewing, authError);
-            return false;
+            return true;
         }
 
-        return true;
+        await _accountRepository.UpdateStatusAsync(_currentAccount, ScraperAccountStatus.NeedsReviewing, authError);
+
+        return false;
     }
 
     private string? GetAuthenticationError()

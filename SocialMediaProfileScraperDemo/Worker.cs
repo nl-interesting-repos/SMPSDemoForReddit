@@ -1,53 +1,60 @@
 ﻿using Microsoft.Extensions.Logging;
 using SocialMediaProfileScraperDemo.MessageQueue;
 using SocialMediaProfileScraperDemo.Queue;
+using SocialMediaProfileScraperDemo.Scraper;
 
 namespace SocialMediaProfileScraperDemo;
 
 public class Worker
 {
     private readonly ILogger<Worker> _logger;
-    private readonly QueueItemRepository _repository;
-    private readonly QueueItemDataLoader _dataLoader;
-    private readonly QueueItemDao _queueItemDao;
+    private readonly ScraperLoader _loader;
+    private readonly QueueItemRepository _queueItemRepository;
 
     public Worker(
-        ILogger<Worker> logger, 
-        QueueItemRepository repository, 
-        QueueItemDataLoader dataLoader, 
-        QueueItemDao queueItemDao)
+        ILogger<Worker> logger,
+        ScraperLoader loader,
+        QueueItemRepository queueItemRepository)
     {
         _logger = logger;
-        _repository = repository;
-        _dataLoader = dataLoader;
-        _queueItemDao = queueItemDao;
+        _loader = loader;
+        _queueItemRepository = queueItemRepository;
     }
     
     public async Task StartAsync()
     {
         while (true)
         {
-            var item = _repository.GetNextItem();
+            var item = _queueItemRepository.GetNextItem();
+            await ProcessItemAsync(item);
+        }
+    }
 
-            try
-            {
-                var result = await _dataLoader.LoadDataForItemAsync(item);
+    private async Task ProcessItemAsync(QueueItem item)
+    {
+        try
+        {
+            var result = await _loader.GetResultForQueueItemAsync(item);
 
-                if (result.Data != null)
-                {
-                    _logger.LogInformation("Storing the data we collected...");
-                    await _repository.StoreQueueItemDataAsync(result.Data);
-                }
-                
-                await _queueItemDao.UpdateStatusAsync(item, QueueItemStatus.Checking, $"Loaded with code {result.Code}");
-                
-                _repository.PublishItemToQueue(MessageQueueNames.CheckerQueue, item);
-                _repository.AcknowledgeQueueItem(item.DeliveryTag);
-            }
-            catch (Exception e)
+            if (result.Data != null)
             {
-                await _queueItemDao.UpdateStatusAsync(item, QueueItemStatus.Failed, e.Message);
+                _logger.LogInformation("Storing the data we collected...");
+
+                await _queueItemRepository.StoreQueueItemDataAsync(result.Data);
+                await _queueItemRepository.UpdateStatusAsync(item, QueueItemStatus.Checking, $"Loaded with code {result.Code}");
+
+                _queueItemRepository.PublishItemToQueue(MessageQueueNames.CheckerQueue, item);
             }
+            else
+            {
+                await _queueItemRepository.UpdateStatusAsync(item, QueueItemStatus.Failed, $"Loaded with code {result.Code}");
+            }
+
+            _queueItemRepository.AcknowledgeQueueItem(item.DeliveryTag);
+        }
+        catch (Exception e)
+        {
+            await _queueItemRepository.UpdateStatusAsync(item, QueueItemStatus.Failed, e.Message);
         }
     }
 }

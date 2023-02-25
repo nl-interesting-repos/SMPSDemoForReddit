@@ -9,10 +9,12 @@ using RabbitMQ.Client;
 using SocialMediaProfileScraperDemo.Database;
 using SocialMediaProfileScraperDemo.MessageQueue;
 using SocialMediaProfileScraperDemo.Queue;
+using SocialMediaProfileScraperDemo.Scraper;
 using SocialMediaProfileScraperDemo.Scraper.Accounts;
 using SocialMediaProfileScraperDemo.Scraper.Browser;
 using SocialMediaProfileScraperDemo.Scraper.Browser.Authenticators;
-using SocialMediaProfileScraperDemo.Scraper.Browser.Readers;
+using SocialMediaProfileScraperDemo.Scraper.Extractors;
+using SocialMediaProfileScraperDemo.Scraper.Presenters;
 using SocialMediaProfileScraperDemo.Storage;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
@@ -36,22 +38,45 @@ public static class ServiceCollection
         
         serviceCollection.AddSingleton<MessageQueueWrapper>();
         serviceCollection.AddSingleton<QueueItemRepository>();
-        serviceCollection.AddSingleton<QueueItemDataLoader>();
         serviceCollection.AddSingleton<QueueItemDataDao>();
-        serviceCollection.AddSingleton<QueueItemDao>();
         serviceCollection.AddSingleton<Worker>();
         
         serviceCollection.AddSingleton<ScraperAccountDao>();
         serviceCollection.AddSingleton<ScraperAccountRepository>();
         
         AddStorageServices(serviceCollection, config);
-        
-        serviceCollection.AddSingleton<FacebookBrowserReader>();
+
+        serviceCollection.AddSingleton(provider => new Dictionary<string, IScraperDataPresenter>
+        {
+            { "facebook.com", provider.GetRequiredService<FacebookDataPresenter>() },
+            { "instagram.com", provider.GetRequiredService<InstagramDataPresenter>() },
+            { "tiktok.com", provider.GetRequiredService<TikTokDataPresenter>() }
+        });
+
+        serviceCollection.AddSingleton(provider => new Dictionary<string, IScraperDataExtractor>
+        {
+            { "facebook.com", provider.GetRequiredService<FacebookDataExtractor>() },
+            { "instagram.com", provider.GetRequiredService<InstagramDataExtractor>() },
+            { "tiktok.com", provider.GetRequiredService<TikTokDataExtractor>() }
+        });
+
+        serviceCollection.AddSingleton(provider => new Dictionary<string, IScraperBrowserAuthenticator>
+        {
+            { "facebook.com", provider.GetRequiredService<FacebookBrowserAuthenticator>() },
+            { "instagram.com", provider.GetRequiredService<InstagramBrowserAuthenticator>() },
+            { "tiktok.com", provider.GetRequiredService<TikTokBrowserAuthenticator>() },
+            { "tinder.com", provider.GetRequiredService<TinderBrowserAuthenticator>() },
+        });
+
+        serviceCollection.AddSingleton<ScraperLoader>();
+
+        serviceCollection.AddSingleton<FacebookDataExtractor>();
         serviceCollection.AddSingleton<FacebookBrowserAuthenticator>();
-        serviceCollection.AddSingleton<InstagramBrowserReader>();
+        serviceCollection.AddSingleton<InstagramDataExtractor>();
         serviceCollection.AddSingleton<InstagramBrowserAuthenticator>();
-        serviceCollection.AddSingleton<TikTokBrowserReader>();
+        serviceCollection.AddSingleton<TikTokDataExtractor>();
         serviceCollection.AddSingleton<TikTokBrowserAuthenticator>();
+        serviceCollection.AddSingleton<TinderBrowserAuthenticator>();
         
         AddSeleniumServices(serviceCollection, config);
     }
@@ -68,7 +93,7 @@ public static class ServiceCollection
             ServiceURL = config["Spaces:ServiceUrl"]
         }));
         
-        serviceCollection.AddSingleton<IStorageClient>(provider => new DigitalOceanSpacesStorageClient(provider.GetRequiredService<AmazonS3Client>(), bucketName, cdnUrl));
+        serviceCollection.AddSingleton<IStorageClient>(provider => new SpacesStorageClient(provider.GetRequiredService<AmazonS3Client>(), bucketName, cdnUrl));
     }
     
     private static void AddSeleniumServices(IServiceCollection serviceCollection, IConfiguration config)

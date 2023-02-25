@@ -40,8 +40,7 @@ public static class ServiceCollection
         serviceCollection.AddSingleton<QueueItemRepository>();
         serviceCollection.AddSingleton<QueueItemDataDao>();
         serviceCollection.AddSingleton<Worker>();
-        
-        serviceCollection.AddSingleton<ScraperAccountDao>();
+
         serviceCollection.AddSingleton<ScraperAccountRepository>();
         
         AddStorageServices(serviceCollection, config);

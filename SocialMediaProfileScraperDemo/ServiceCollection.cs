@@ -38,7 +38,6 @@ public static class ServiceCollection
         
         serviceCollection.AddSingleton<MessageQueueWrapper>();
         serviceCollection.AddSingleton<QueueItemRepository>();
-        serviceCollection.AddSingleton<QueueItemDataDao>();
         serviceCollection.AddSingleton<Worker>();
 
         serviceCollection.AddSingleton<ScraperAccountRepository>();

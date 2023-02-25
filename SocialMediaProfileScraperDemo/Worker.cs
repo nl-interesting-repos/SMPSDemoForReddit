@@ -40,7 +40,7 @@ public class Worker
             {
                 _logger.LogInformation("Storing the data we collected...");
 
-                await _queueItemRepository.StoreQueueItemDataAsync(result.Data);
+                await _queueItemRepository.StoreDataAsync(result.Data);
                 await _queueItemRepository.UpdateStatusAsync(item, QueueItemStatus.Checking, $"Loaded with code {result.Code}");
 
                 _queueItemRepository.PublishItemToQueue(MessageQueueNames.CheckerQueue, item);

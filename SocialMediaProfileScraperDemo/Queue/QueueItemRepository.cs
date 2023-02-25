@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SocialMediaProfileScraperDemo.Database;
 using SocialMediaProfileScraperDemo.MessageQueue;
 
@@ -9,17 +10,14 @@ public class QueueItemRepository : BaseDao
 {
     private readonly ILogger<QueueItemRepository> _logger;
     private readonly MessageQueueWrapper _mqWrapper;
-    private readonly QueueItemDataDao _dataDao;
 
     public QueueItemRepository(
         ILogger<QueueItemRepository> logger,
         IDatabaseProvider databaseProvider,
-        MessageQueueWrapper mqWrapper,
-        QueueItemDataDao dataDao) : base(databaseProvider)
+        MessageQueueWrapper mqWrapper) : base(databaseProvider)
     {
         _logger = logger;
         _mqWrapper = mqWrapper;
-        _dataDao = dataDao;
     }
 
     public QueueItem GetNextItem()
@@ -41,11 +39,6 @@ public class QueueItemRepository : BaseDao
 
             return new QueueItem(queueItemId, parts[1], (QueueItemStatus)int.Parse(parts[2]), item.DeliveryTag);
         }
-    }
-
-    public async Task StoreQueueItemDataAsync(QueueItemData data)
-    {
-        await _dataDao.StoreAsync(data);
     }
 
     public void PublishItemToQueue(string queueName, QueueItem item)
@@ -76,5 +69,21 @@ public class QueueItemRepository : BaseDao
         });
 
         item.Status = statusId;
+    }
+
+    public async Task StoreDataAsync(QueueItemData queueItemData)
+    {
+        await QueryAsync("INSERT INTO `scraper_queue_item_data` (queue_item_id, screenshot_url, display_name, username, picture, biography, is_private, other_data, loaded_at) VALUES (@itemId, @screenshot, @name, @username, @picture, @bio, @isPrivate, @otherData, @loadedAt);", new Dictionary<string, object>()
+        {
+            { "itemId", queueItemData.ItemId },
+            { "screenshot", queueItemData.ScreenshotUrl },
+            { "name", queueItemData.DisplayName },
+            { "username", queueItemData.Username },
+            { "picture", queueItemData.Picture },
+            { "bio", queueItemData.Biography },
+            { "isPrivate", queueItemData.IsPrivate },
+            { "otherData", JsonConvert.SerializeObject(queueItemData.OtherData) },
+            { "loadedAt", queueItemData.LoadedAt },
+        });
     }
 }
